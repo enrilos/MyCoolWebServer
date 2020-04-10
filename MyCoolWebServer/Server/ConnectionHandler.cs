@@ -40,8 +40,10 @@
 
                 await this.client.SendAsync(byteSegments, SocketFlags.None);
 
+                Console.WriteLine();
                 Console.WriteLine("-----REQUEST-----");
-                Console.WriteLine(httpRequest);
+                Console.WriteLine($"{httpRequest.Headers}");
+                Console.WriteLine();
                 Console.WriteLine("-----RESPONSE-----");
                 Console.WriteLine(httpResponse);
                 Console.WriteLine();
@@ -79,6 +81,8 @@
             {
                 return null;
             }
+
+
 
             return new HttpRequest(result.ToString());
         }

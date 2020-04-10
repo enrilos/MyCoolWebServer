@@ -21,11 +21,36 @@
         {
             CoreValidator.ThrowIfNull(httpContext, nameof(httpContext));
 
-            IHttpResponse httpResponse = this.handlerFunc.Invoke(httpContext.Request);
+            string sessionIdToSend = null;
 
-            httpResponse.Headers.Add(new HttpHeader("Content-Type", "text/html"));
+            if (!httpContext.Request.Cookies.ContainsKey(SessionStore.SessionCookieKey))
+            {
+                var sessionId = Guid.NewGuid().ToString();
 
-            return httpResponse;
+                httpContext.Request.Session = SessionStore.Get(sessionId);
+
+                sessionIdToSend = sessionId;
+            }
+
+            IHttpResponse response = this.handlerFunc.Invoke(httpContext.Request);
+
+            if (sessionIdToSend != null)
+            {
+                response.Headers.Add(new HttpHeader("Set-Cookie",
+                    $"{SessionStore.SessionCookieKey}={sessionIdToSend}; HttpOnly; path=/"));
+            }
+
+            if (!response.Headers.ContainsKey("Content-Type"))
+            {
+                response.Headers.Add(new HttpHeader("Content-Type", "text/html"));
+            }
+
+            foreach (var cookie in response.Cookies)
+            {
+                response.Headers.Add(new HttpHeader("Set-Cookie", cookie.ToString()));
+            }
+
+            return response;
         }
     }
 }

@@ -3,23 +3,29 @@
     using Common;
     using Contracts;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Text;
 
     public class HttpHeaderCollection : IHttpHeaderCollection
     {
-        private readonly Dictionary<string, HttpHeader> headers;
+        private readonly Dictionary<string, ICollection<HttpHeader>> headers;
 
         public HttpHeaderCollection()
         {
-            this.headers = new Dictionary<string, HttpHeader>();
+            this.headers = new Dictionary<string, ICollection<HttpHeader>>();
         }
 
         public void Add(HttpHeader header)
         {
             CoreValidator.ThrowIfNull(header, nameof(header));
 
-            this.headers[header.Key] = header;
+            if (!this.headers.ContainsKey(header.Key))
+            {
+                this.headers[header.Key] = new List<HttpHeader>(); 
+            }
+
+            this.headers[header.Key].Add(header);
         }
 
         public bool ContainsKey(string key)
@@ -29,7 +35,7 @@
             return this.headers.ContainsKey(key);
         }
 
-        public HttpHeader Get(string key)
+        public ICollection<HttpHeader> Get(string key)
         {
             CoreValidator.ThrowIfNull(key, nameof(key));
 
@@ -43,7 +49,23 @@
 
         public override string ToString()
         {
-            return string.Join(Environment.NewLine, this.headers.Select(h => h.Value.ToString()));
+            var result = new StringBuilder();
+
+            foreach (var header in this.headers)
+            {
+                foreach (var headerValue in header.Value)
+                {
+                    result.AppendLine($"{header.Key}: {headerValue.Value}");
+                }
+            }
+
+            return result.ToString().Trim();
         }
+
+        public IEnumerator<ICollection<HttpHeader>> GetEnumerator()
+          => this.headers.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+          => this.headers.Values.GetEnumerator();
     }
 }

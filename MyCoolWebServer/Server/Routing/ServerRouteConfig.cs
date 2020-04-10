@@ -1,11 +1,10 @@
 ﻿namespace MyCoolWebServer.Server.Routing
 {
-    using MyCoolWebServer.Server.Routing.Contracts;
     using Enums;
+    using MyCoolWebServer.Server.Routing.Contracts;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using MyCoolWebServer.Server.Handlers;
     using System.Text;
     using System.Text.RegularExpressions;
 
@@ -80,8 +79,17 @@
 
                 if (!currentToken.StartsWith("{") && !currentToken.EndsWith("}"))
                 {
-                    result.Append($"{currentToken}{end}");
+                    // NOTE:
+                    // Bug that wasn't routing (with tokens) due to the slash that I didn't put below.
+                    // BEFORE:
+                    // result.Append($"{currentToken}{end}");
+                    // NOW:
+
+                    result.Append($"/{currentToken}{end}");
                     continue;
+
+                    // The routing with tokens works correctly now.
+                    // The routes just need to be added in the MainApplication class.
                 }
 
                 var parameterRegex = new Regex("<\\w+>");

@@ -3,7 +3,7 @@
     using Common;
     using Contracts;
     using Enums;
-    using MyCoolWebServer.Server.Exceptions;
+    using Exceptions;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -12,22 +12,27 @@
     public class HttpRequest : IHttpRequest
     {
         private const string BadRequestExceptionMessage = "Request is not valid.";
+        private readonly string requestText;
 
-        public HttpRequest(string requestString)
+        public HttpRequest(string requestText)
         {
-            CoreValidator.ThrowIfNullOrEmpty(requestString, nameof(requestString));
+            CoreValidator.ThrowIfNullOrEmpty(requestText, nameof(requestText));
 
+            this.requestText = requestText;
             this.FormData = new Dictionary<string, string>();
             this.Headers = new HttpHeaderCollection();
+            this.Cookies = new HttpCookieCollection();
             this.QueryParameters = new Dictionary<string, string>();
             this.UrlParameters = new Dictionary<string, string>();
 
-            this.ParseRequest(requestString);
+            this.ParseRequest(requestText);
         }
 
         public IDictionary<string, string> FormData { get; private set; }
 
         public HttpHeaderCollection Headers { get; private set; }
+
+        public HttpCookieCollection Cookies { get; private set; }
 
         public string Path { get; private set; }
 
@@ -38,6 +43,8 @@
         public string Url { get; private set; }
 
         public IDictionary<string, string> UrlParameters { get; private set; }
+
+        public IHttpSession Session { get; set; }
 
         public void AddUrlParameter(string key, string value)
         {
@@ -67,7 +74,10 @@
             this.Url = requestLine[1];
             this.Path = this.ParsePath(this.Url);
             this.ParseHeaders(requestLines);
+            this.ParseCookies();
             this.ParseParameters();
+            this.ParseFormData(requestLines.Last());
+            this.SetSession();
         }
 
         private void ParseParameters()
@@ -83,6 +93,7 @@
             this.ParseQuery(query, this.UrlParameters);
         }
 
+        // Used later on HTTP POST methods.
         private void ParseFormData(string formDataLine)
         {
             if (this.Method == HttpRequestMethod.Get)
@@ -143,6 +154,42 @@
             }
         }
 
+        private void ParseCookies()
+        {
+            if (this.Headers.ContainsKey("Cookie"))
+            {
+                var allCookies = this.Headers.Get("Cookie");
+
+                foreach (var cookie in allCookies)
+                {
+                    if (!cookie.Value.Contains('='))
+                    {
+                        return;
+                    }
+
+                    var cookieParts = cookie.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                    if (!cookieParts.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var cookiePart in cookieParts)
+                    {
+                        var cookieKeyValuePair = cookiePart.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (cookieKeyValuePair.Length == 2)
+                        {
+                            var key = cookieKeyValuePair[0].Trim();
+                            var value = cookieKeyValuePair[1].Trim();
+
+                            this.Cookies.Add(new HttpCookie(key, value, false));
+                        }
+                    }
+                }
+            }
+        }
+
         private HttpRequestMethod ParseHttpRequestMethod(string method)
         {
             HttpRequestMethod parsedMethod;
@@ -159,5 +206,19 @@
         {
             return url.Split(new[] { '?', '#' }, StringSplitOptions.RemoveEmptyEntries)[0];
         }
+
+        private void SetSession()
+        {
+            // Cookie: SID=If31Pdfghq512
+            if (this.Cookies.ContainsKey(SessionStore.SessionCookieKey))
+            {
+                var cookie = this.Cookies.Get("MY_SID");
+                var sessionId = cookie.Value;
+
+                this.Session = SessionStore.Get(SessionStore.SessionCookieKey);
+            }
+        }
+
+        public override string ToString() => this.requestText;
     }
 }

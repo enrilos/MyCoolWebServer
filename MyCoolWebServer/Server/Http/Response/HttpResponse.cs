@@ -9,9 +9,12 @@
         protected HttpResponse()
         {
             this.Headers = new HttpHeaderCollection();
+            this.Cookies = new HttpCookieCollection();
         }
 
         public HttpHeaderCollection Headers { get; }
+
+        public HttpCookieCollection Cookies { get; }
 
         public HttpStatusCode StatusCode { get; protected set; }
 

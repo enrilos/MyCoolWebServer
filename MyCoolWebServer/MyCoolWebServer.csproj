@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Application\Views\Home\Resources\cake.jfif\**" />
-    <EmbeddedResource Remove="Application\Views\Home\Resources\cake.jfif\**" />
-    <None Remove="Application\Views\Home\Resources\cake.jfif\**" />
+    <Compile Remove="Application\Views\Resources\cake.jfif\**" />
+    <EmbeddedResource Remove="Application\Views\Resources\cake.jfif\**" />
+    <None Remove="Application\Views\Resources\cake.jfif\**" />
   </ItemGroup>
 
 </Project>

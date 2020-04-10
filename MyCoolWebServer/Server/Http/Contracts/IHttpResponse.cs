@@ -7,5 +7,7 @@
         HttpHeaderCollection Headers { get; }
 
         HttpStatusCode StatusCode { get; }
+
+        HttpCookieCollection Cookies { get; }
     }
 }
