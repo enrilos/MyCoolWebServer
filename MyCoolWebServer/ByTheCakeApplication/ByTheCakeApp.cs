@@ -24,6 +24,9 @@
 
             appRouteConfig
                 .AddRoute("/add", new GetHandler(req => new CakesController().Add()));
+
+            appRouteConfig
+                .AddRoute("/search", new GetHandler(req => new CakesController().Search(req.UrlParameters)));
         }
     }
 }
