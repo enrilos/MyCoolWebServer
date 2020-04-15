@@ -38,6 +38,7 @@
 
                 var parameters = routingContext.Parameters;
 
+                // Annoying bug lurking here.
                 foreach (var parameter in parameters)
                 {
                     var parameterValue = match.Groups[parameter].Value;

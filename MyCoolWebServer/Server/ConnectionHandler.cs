@@ -71,7 +71,7 @@
 
                 result.Append(bytesAsString);
 
-                if (numberOfBytesRead < 1024)
+                if (numberOfBytesRead < 1023)
                 {
                     break;
                 }

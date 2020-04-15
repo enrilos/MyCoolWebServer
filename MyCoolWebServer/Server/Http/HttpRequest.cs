@@ -93,7 +93,6 @@
             this.ParseQuery(query, this.UrlParameters);
         }
 
-        // Used later on HTTP POST methods.
         private void ParseFormData(string formDataLine)
         {
             if (this.Method == HttpRequestMethod.Get)
@@ -101,7 +100,7 @@
                 return;
             }
 
-            this.ParseQuery(formDataLine, this.QueryParameters);
+            this.ParseQuery(formDataLine, this.FormData);
         }
 
         private void ParseQuery(string query, IDictionary<string, string> dict)
