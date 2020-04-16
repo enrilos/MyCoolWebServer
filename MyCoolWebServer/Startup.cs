@@ -2,6 +2,7 @@
 {
     using Application;
     using ByTheCakeApplication;
+    using CalculatorApplication;
     using Server;
     using Server.Contracts;
     using Server.Routing;
@@ -17,7 +18,7 @@
 
         public void Run()
         {
-            var mainApplication = new ByTheCakeApp();
+            var mainApplication = new CalculatorApp();
             var appRouteConfig = new AppRouteConfig();
             mainApplication.Configure(appRouteConfig);
             var webServer = new WebServer(port, appRouteConfig);
