@@ -27,6 +27,12 @@
 
             appRouteConfig
                 .AddRoute("/search", new GetHandler(req => new CakesController().Search(req.UrlParameters)));
+
+            appRouteConfig
+                .AddRoute("/login", new GetHandler(req => new AccountController().Login()));
+
+            appRouteConfig
+                .AddRoute("/login", new PostHandler(req => new AccountController().Login(req))); // passing the IHttpRequest itself.
         }
     }
 }

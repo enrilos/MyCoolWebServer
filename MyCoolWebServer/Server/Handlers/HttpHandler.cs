@@ -2,9 +2,11 @@
 {
     using Common;
     using Contracts;
+    using Http;
     using Http.Contracts;
     using Http.Response;
     using Routing.Contracts;
+    using System;
     using System.Text.RegularExpressions;
 
     public class HttpHandler : IRequestHandler
@@ -18,10 +20,20 @@
             this.serverRouteConfig = routeConfig;
         }
 
-        public IHttpResponse Handle(IHttpContext httpContext)
+        public IHttpResponse Handle(IHttpContext context)
         {
-            var requestMethod = httpContext.Request.Method;
-            var requestPath = httpContext.Request.Path;
+            // Checking if the user is authenticated
+            // If not, the user will be redirected to /login
+            var loginPath = "/login";
+            
+            if (context.Request.Path != loginPath &&
+                !context.Request.Session.Contains(SessionStore.CurrentUserKey))
+            {
+                return new RedirectResponse(loginPath);
+            }
+
+            var requestMethod = context.Request.Method;
+            var requestPath = context.Request.Path;
             var registeredRoutes = this.serverRouteConfig.Routes[requestMethod];
 
             foreach (var registeredRoute in registeredRoutes)
@@ -42,10 +54,10 @@
                 foreach (var parameter in parameters)
                 {
                     var parameterValue = match.Groups[parameter].Value;
-                    httpContext.Request.AddUrlParameter(parameter, parameterValue);
+                    context.Request.AddUrlParameter(parameter, parameterValue);
                 }
 
-                return routingContext.RequestHandler.Handle(httpContext);
+                return routingContext.RequestHandler.Handle(context);
             }
 
             return new NotFoundResponse();

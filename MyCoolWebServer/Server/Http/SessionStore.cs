@@ -9,6 +9,8 @@
 
         public static string SessionCookieKey { get; } = "MY_SID";
 
+        public static string CurrentUserKey { get; } = "$&Current_User_Session_Key&$";
+
         public static HttpSession Get(string id)
             => sessions.GetOrAdd(id, _ => new HttpSession(id));
     }

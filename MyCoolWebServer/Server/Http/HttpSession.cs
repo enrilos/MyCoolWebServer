@@ -32,6 +32,8 @@
             this.parameters.Clear();
         }
 
+        public bool Contains(string key) => this.parameters.ContainsKey(key);
+
         public object Get(string key)
         {
             CoreValidator.ThrowIfNullOrEmpty(key, nameof(key));

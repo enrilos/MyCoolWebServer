@@ -6,15 +6,19 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
 
     public class CakesController : Controller
     {
+        private static string defaultDataFilePath = "../../../ByTheCakeApplication\\Data\\database.csv";
         private static readonly List<Cake> cakes = new List<Cake>();
 
-        public IHttpResponse Add() => this.FileViewResponse("cakes\\add", new Dictionary<string, string>()
+        public IHttpResponse Add()
         {
-            ["display"] = "none"
-        });
+            this.ViewData["display"] = "none";
+
+            return this.FileViewResponse("cakes\\add");
+        }
 
         public IHttpResponse Add(string name, string price)
         {
@@ -26,42 +30,46 @@
 
             cakes.Add(cake);
 
-            using (var streamWriter = new StreamWriter("../../../ByTheCakeApplication\\Data\\database.csv", true))
+            var id = File.ReadAllLines(defaultDataFilePath).Length;
+
+            using (var streamWriter = new StreamWriter(defaultDataFilePath, true))
             {
-                streamWriter.WriteLine($"{name},{price}");
+                streamWriter.WriteLine($"{id + 1},{name},{price}");
             }
 
-            return this.FileViewResponse("cakes\\add", new Dictionary<string, string>
-            {
-                ["name"] = name,
-                ["price"] = price,
-                ["display"] = "block"
-            });
+            this.ViewData["name"] = name;
+            this.ViewData["price"] = price;
+            this.ViewData["display"] = "block";
+
+            return this.FileViewResponse("cakes\\add");
         }
 
         public IHttpResponse Search(IDictionary<string, string> urlParameters)
         {
-            var results = string.Empty;
+            var results = new StringBuilder();
 
             if (urlParameters.ContainsKey("searchTerm"))
             {
-                var allCakes = File.ReadAllLines("../../../ByTheCakeApplication\\Data\\database.csv")
+                var allCakes = File.ReadAllLines(defaultDataFilePath)
                     .Where(x => x.ToLower().Contains(urlParameters["searchTerm"].ToLower()))
                     .ToArray();
 
                 for (int i = 0; i < allCakes.Length; i++)
                 {
                     var splittedKvp = allCakes[i].Split(new[] { ',' });
-                    results += splittedKvp[0];
-                    results += $" ${splittedKvp[1]}";
-                    results += "\n";
+                    results.Append("<div>");
+                    results.Append(splittedKvp[1]);
+                    results.Append($" ${splittedKvp[2]} ");
+                    results.Append("<input type=\"submit\" name=\"order\" value=\"Order\" />");
+                    results.AppendLine("</div>");
                 }
             }
 
-            return this.FileViewResponse("cakes\\search", new Dictionary<string, string>
-            {
-                ["results"] = results
-            });
+            this.ViewData["results"] = results.ToString().Trim();
+
+            return this.FileViewResponse("cakes\\search");
         }
+
+        public IHttpResponse Login() => this.FileViewResponse("cakes\\login");
     }
 }

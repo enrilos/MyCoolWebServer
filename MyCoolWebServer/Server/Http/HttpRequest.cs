@@ -24,6 +24,7 @@
             this.Cookies = new HttpCookieCollection();
             this.QueryParameters = new Dictionary<string, string>();
             this.UrlParameters = new Dictionary<string, string>();
+            this.Session = new HttpSession(Guid.NewGuid().ToString());
 
             this.ParseRequest(requestText);
         }
@@ -208,7 +209,7 @@
 
         private void SetSession()
         {
-            // Cookie: SID=If31Pdfghq512
+            // Cookie: SID=If31Pdfghq512; SOME GUID
             if (this.Cookies.ContainsKey(SessionStore.SessionCookieKey))
             {
                 var cookie = this.Cookies.Get("MY_SID");

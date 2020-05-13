@@ -18,7 +18,7 @@
 
         public void Run()
         {
-            var mainApplication = new CalculatorApp();
+            var mainApplication = new ByTheCakeApp();
             var appRouteConfig = new AppRouteConfig();
             mainApplication.Configure(appRouteConfig);
             var webServer = new WebServer(port, appRouteConfig);
