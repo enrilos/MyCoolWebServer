@@ -13,8 +13,6 @@
 
         string Path { get; }
 
-        IDictionary<string, string> QueryParameters { get; }
-
         HttpRequestMethod Method { get; }
 
         string Url { get; }

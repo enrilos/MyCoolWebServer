@@ -15,7 +15,10 @@
 
         protected Controller()
         {
-            this.ViewData = new Dictionary<string, string>();
+            this.ViewData = new Dictionary<string, string>
+            {
+                ["showLogout"] = "block"
+            };
         }
 
         protected Dictionary<string, string> ViewData { get; private set; }

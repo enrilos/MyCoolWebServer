@@ -1,17 +1,20 @@
 ﻿namespace MyCoolWebServer.ByTheCakeApplication.Controllers
 {
+    using Data;
     using Infrastructure;
     using Models;
     using Server.Http.Contracts;
-    using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text;
 
     public class CakesController : Controller
     {
-        private static string defaultDataFilePath = "../../../ByTheCakeApplication\\Data\\database.csv";
-        private static readonly List<Cake> cakes = new List<Cake>();
+        private readonly CakesData cakesData;
+
+        public CakesController()
+        {
+            this.cakesData = new CakesData();
+        }
 
         public IHttpResponse Add()
         {
@@ -22,20 +25,7 @@
 
         public IHttpResponse Add(string name, string price)
         {
-            var cake = new Cake
-            {
-                Name = name,
-                Price = decimal.Parse(price)
-            };
-
-            cakes.Add(cake);
-
-            var id = File.ReadAllLines(defaultDataFilePath).Length;
-
-            using (var streamWriter = new StreamWriter(defaultDataFilePath, true))
-            {
-                streamWriter.WriteLine($"{id + 1},{name},{price}");
-            }
+            this.cakesData.Add(name, price);
 
             this.ViewData["name"] = name;
             this.ViewData["price"] = price;
@@ -44,28 +34,36 @@
             return this.FileViewResponse("cakes\\add");
         }
 
-        public IHttpResponse Search(IDictionary<string, string> urlParameters)
+        public IHttpResponse Search(IHttpRequest req)
         {
+            const string searchTermKey = "searchTerm";
+
+            this.ViewData[searchTermKey] = string.Empty;
+            this.ViewData["showCart"] = "none";
+
             var results = new StringBuilder();
 
-            if (urlParameters.ContainsKey("searchTerm"))
+            if (req.UrlParameters.ContainsKey(searchTermKey))
             {
-                var allCakes = File.ReadAllLines(defaultDataFilePath)
-                    .Where(x => x.ToLower().Contains(urlParameters["searchTerm"].ToLower()))
+                string searchTerm = req.UrlParameters[searchTermKey];
+
+                this.ViewData[searchTermKey] = searchTerm;
+
+                var allCakes = this.cakesData.GetCakes()
+                    .Where(c => c.Name.ToLower().Contains(req.UrlParameters[searchTermKey].ToLower()))
+                    .Select(c => 
+                            results.AppendLine($@"<div>{c.Name} ${c.Price} <button><a href=""shopping/add/{c.Id}?searchTerm={req.UrlParameters[searchTermKey]}"">Order</a></button></div>"))
                     .ToArray();
 
-                for (int i = 0; i < allCakes.Length; i++)
-                {
-                    var splittedKvp = allCakes[i].Split(new[] { ',' });
-                    results.Append("<div>");
-                    results.Append(splittedKvp[1]);
-                    results.Append($" ${splittedKvp[2]} ");
-                    results.Append("<input type=\"submit\" name=\"order\" value=\"Order\" />");
-                    results.AppendLine("</div>");
-                }
+
             }
 
-            this.ViewData["results"] = results.ToString().Trim();
+            // The current session ~
+            var shoppingCart = req.Session.Get<ShoppingCart>(ShoppingCart.SessionKey);
+
+            this.ViewData["productsCount"] = shoppingCart.Orders.Count.ToString();
+            this.ViewData["showCart"] = "block";
+            this.ViewData["results"] = results.ToString();
 
             return this.FileViewResponse("cakes\\search");
         }

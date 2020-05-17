@@ -2,7 +2,6 @@
 {
     using Common;
     using Contracts;
-    using System;
     using System.Collections.Generic;
 
     public class HttpSession : IHttpSession

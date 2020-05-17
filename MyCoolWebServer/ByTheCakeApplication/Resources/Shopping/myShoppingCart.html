@@ -1,0 +1,24 @@
+﻿<div>
+    <h1>My Shopping Cart</h1>
+</div>
+<div>
+    <a href="/">Back to home</a>
+    <a href="/search">Search more cakes</a>
+</div>
+<br />
+
+<div style="display: {{{showOrders}}}">
+    {{{orders}}}
+</div>
+
+<hr />  
+
+<div>
+    <p>Total Cost: ${{{totalCost}}}</p>
+</div>
+
+<hr />
+
+<form method="post" action="/success">
+    <input type="submit" name="finishOrder" value="Finish Order" />
+</form>

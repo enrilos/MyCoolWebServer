@@ -74,7 +74,12 @@
             // ^account/details$
             for (int i = 0; i < tokens.Length; i++)
             {
-                var end = tokens.Length - 1 == i ? "$" : "/";
+                // Also another annoying bug here.
+                // When using URL with more than 1 parameter (like /shopping/add/x), it was concatinating an extra slash - shopping//add/x.
+                // Therefore, the URL was irrecognizable for the server routing and could not match it with any of the registered routes.
+                // Fixed it.
+
+                var end = tokens.Length - 1 == i ? "$" : "";
                 var currentToken = tokens[i];
 
                 if (!currentToken.StartsWith("{") && !currentToken.EndsWith("}"))
@@ -108,7 +113,7 @@
 
                 var currentTokenWithoutCurlyBrackets = currentToken.Substring(1, currentToken.Length - 2);
 
-                result.Append($"{currentTokenWithoutCurlyBrackets}{end}");
+                result.Append($"/{currentTokenWithoutCurlyBrackets}{end}");
             }
         }
     }

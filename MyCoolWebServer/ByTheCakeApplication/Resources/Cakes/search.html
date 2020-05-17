@@ -1,8 +1,12 @@
 ﻿<a href="/">Back to home</a>
 
 <form method="get">
-    <input type="text" name="searchTerm" placeholder="Search..." />
+    <input type="text" name="searchTerm" value="{{{searchTerm}}}" placeholder="Search..."/>
     <input type="submit" name="searchButton" value="Search" />
 </form>
+
+<div style="display: {{{showCart}}}">
+    <a href="/myShoppingCart">Your Cart:</a><label> {{{productsCount}}} product(s)</label>
+</div>
 
 <pre>{{{results}}}</pre>

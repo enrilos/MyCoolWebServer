@@ -10,6 +10,11 @@
     <meta name="author" content="Emre Eredzheb" />
 </head>
 <body>
+    <div style="display: {{{showLogout}}}" align="left">
+        <form method="post" action="/logout">
+            <input type="submit" name="logout" value="Logout" />
+        </form>
+    </div>
     {{{content}}}
     <hr />
     <footer style="text-align:center;">

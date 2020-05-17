@@ -22,7 +22,6 @@
             this.FormData = new Dictionary<string, string>();
             this.Headers = new HttpHeaderCollection();
             this.Cookies = new HttpCookieCollection();
-            this.QueryParameters = new Dictionary<string, string>();
             this.UrlParameters = new Dictionary<string, string>();
             this.Session = new HttpSession(Guid.NewGuid().ToString());
 
@@ -36,8 +35,6 @@
         public HttpCookieCollection Cookies { get; private set; }
 
         public string Path { get; private set; }
-
-        public IDictionary<string, string> QueryParameters { get; private set; }
 
         public HttpRequestMethod Method { get; private set; }
 
@@ -89,7 +86,6 @@
             }
 
             string query = this.Url.Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries).Last();
-
 
             this.ParseQuery(query, this.UrlParameters);
         }
