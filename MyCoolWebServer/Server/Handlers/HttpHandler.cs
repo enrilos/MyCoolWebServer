@@ -7,6 +7,7 @@
     using Http.Response;
     using Routing.Contracts;
     using System;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     public class HttpHandler : IRequestHandler
@@ -26,12 +27,12 @@
             {
                 // Checking if the user is authenticated
                 // If not, the user will be redirected to /login
-                var loginPath = "/login";
+                var anonymousPaths = new[] { "/login", "/register" };
 
-                if (context.Request.Path != loginPath &&
+                if (!anonymousPaths.Contains(context.Request.Path) &&
                     !context.Request.Session.Contains(SessionStore.CurrentUserKey))
                 {
-                    return new RedirectResponse(loginPath);
+                    return new RedirectResponse(anonymousPaths.First());
                 }
 
                 var requestMethod = context.Request.Method;

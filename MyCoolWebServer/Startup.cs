@@ -19,6 +19,7 @@
         public void Run()
         {
             var mainApplication = new ByTheCakeApp();
+            mainApplication.InitializeDatabase();
             var appRouteConfig = new AppRouteConfig();
             mainApplication.Configure(appRouteConfig);
             var webServer = new WebServer(port, appRouteConfig);

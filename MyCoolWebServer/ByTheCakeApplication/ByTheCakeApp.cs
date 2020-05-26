@@ -1,12 +1,23 @@
 ﻿namespace MyCoolWebServer.ByTheCakeApplication
 {
     using Controllers;
+    using Data;
+    using Microsoft.EntityFrameworkCore;
     using Server.Contracts;
     using Server.Handlers;
     using Server.Routing.Contracts;
+    using ViewModels.Account;
 
     public class ByTheCakeApp : IApplication
     {
+        public void InitializeDatabase()
+        {
+            using (var db = new ByTheCakeDbContext())
+            {
+                db.Database.Migrate();
+            }
+        }
+
         public void Configure(IAppRouteConfig appRouteConfig)
         {
             appRouteConfig
@@ -32,10 +43,28 @@
                 .AddRoute("/search", new GetHandler(req => new CakesController().Search(req)));
 
             appRouteConfig
+                .AddRoute("/register", new GetHandler(req => new AccountController().Register()));
+
+            appRouteConfig
+                .AddRoute("/register", new PostHandler(req => new AccountController().Register(req, new RegisterUserViewModel
+                {
+                    Username = req.FormData["username"],
+                    Password = req.FormData["password"],
+                    ConfirmPassword = req.FormData["confirmPassword"]
+                })));
+
+            appRouteConfig
                 .AddRoute("/login", new GetHandler(req => new AccountController().Login()));
 
             appRouteConfig
-                .AddRoute("/login", new PostHandler(req => new AccountController().Login(req))); // passing the IHttpRequest itself.
+                .AddRoute("/login", new PostHandler(req => new AccountController().Login(req, new LoginUserViewModel
+                {
+                    Username = req.FormData["username"],
+                    Password = req.FormData["password"]
+                })));
+
+            appRouteConfig
+                .AddRoute("/profile", new GetHandler(req => new AccountController().Profile(req)));
 
             appRouteConfig
                 .AddRoute("/logout", new PostHandler(req => new AccountController().Logout(req)));

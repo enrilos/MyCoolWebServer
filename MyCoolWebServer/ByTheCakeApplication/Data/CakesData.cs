@@ -1,6 +1,6 @@
 ﻿namespace MyCoolWebServer.ByTheCakeApplication.Data
 {
-    using Models;
+    using ByTheCakeApplication.ViewModels;
     using Server.Common;
     using System.Collections.Generic;
     using System.IO;
