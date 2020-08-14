@@ -12,6 +12,9 @@
 
     public class AccountController : Controller
     {
+        private const string RegisterView = "account\\register";
+        private const string LoginView = "account\\login";
+
         private readonly IUserService userService;
 
         public AccountController()
@@ -24,23 +27,19 @@
         {
             this.ViewData["showError"] = "none";
             this.ViewData["showLogout"] = "none";
-            return this.FileViewResponse("account\\register");
+            return this.FileViewResponse(RegisterView);
         }
 
         // HttpPost
         public IHttpResponse Register(IHttpRequest request, RegisterUserViewModel model)
         {
-            this.ViewData["showError"] = "none";
-            this.ViewData["showLogout"] = "none";
-
             if (model.Username.Length < 3
                 || model.Password.Length < 3
                 || model.ConfirmPassword.Length != model.Password.Length)
             {
-                this.ViewData["showError"] = "block";
-                this.ViewData["error"] = "Invalid user credentials.";
+                this.AddError("Invalid user credentials.");
 
-                return this.FileViewResponse("account\\register");
+                return this.FileViewResponse(RegisterView);
             }
 
             var success = this.userService.Create(model.Username, model.Password);
@@ -53,11 +52,9 @@
             }
             else
             {
-                this.ViewData["showLogout"] = "none";
-                this.ViewData["showError"] = "block";
-                this.ViewData["error"] = "Username is already taken.";
+                this.AddError("Username is already taken.");
 
-                return this.FileViewResponse("account\\register");
+                return this.FileViewResponse(RegisterView);
             }
         }
 
@@ -74,11 +71,9 @@
             if (string.IsNullOrWhiteSpace(model.Username)
                 || string.IsNullOrWhiteSpace(model.Password))
             {
-                this.ViewData["error"] = "All credentials are mandatory";
-                this.ViewData["showError"] = "block";
-                this.ViewData["showLogout"] = "none";
+                this.AddError("All credentials are compulsory.");
 
-                return this.FileViewResponse("account\\login");
+                return this.FileViewResponse(LoginView);
             }
 
             var exists = this.userService.Exists(model.Username, model.Password);
@@ -91,11 +86,9 @@
             }
             else
             {
-                this.ViewData["showLogout"] = "none";
-                this.ViewData["showError"] = "block";
-                this.ViewData["error"] = "The credentials do not match.";
+                this.AddError("The credentials do not match.");
 
-                return this.FileViewResponse("account\\login");
+                return this.FileViewResponse(LoginView);
             }
         }
 
@@ -123,8 +116,6 @@
 
         public IHttpResponse Logout(IHttpRequest request)
         {
-            this.ViewData["showLogout"] = "none";
-
             request.Session.Clear();
 
             return this.FileViewResponse("account\\logout");

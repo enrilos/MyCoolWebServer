@@ -1,0 +1,28 @@
+﻿<a href="/">Back to home</a>
+
+<form method="post">
+    <label for="cakeName">Name:</label>
+    <input id="cakeName" type="text" name="name" />
+
+    <br />
+
+    <label for="cakePrice">Price:</label>
+    <input id="cakePrice" type="number" min="0" step=".01" name="price" />
+
+    <br />
+
+    <label for="imageUrl">Image URL:</label>
+    <input id="imageUrl" type="url" name="imageUrl"/>
+
+    <br />
+
+    <input type="submit" value="Add Cake"/>
+</form>
+<div style="display: {{{showError}}};">
+    <p style="color: red;">{{{error}}}</p>
+</div>
+<div style="display: {{{showResult}}}">
+    <p>name: {{{name}}}</p>
+    <p>price: ${{{price}}}</p>
+    <img src="{{{imageUrl}}}" alt="Cake Image" width="400" height="270"/>
+</div>

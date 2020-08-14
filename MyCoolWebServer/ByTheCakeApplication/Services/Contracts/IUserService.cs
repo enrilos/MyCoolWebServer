@@ -9,5 +9,7 @@
         bool Exists(string username, string password);
 
         ProfileUserViewModel Get(string username);
+
+        int? GetUserId(string username);
     }
 }

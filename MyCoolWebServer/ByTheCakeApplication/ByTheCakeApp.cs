@@ -7,6 +7,7 @@
     using Server.Handlers;
     using Server.Routing.Contracts;
     using ViewModels.Account;
+    using ViewModels.Products;
 
     public class ByTheCakeApp : IApplication
     {
@@ -34,13 +35,21 @@
             // which obviously returned KeyNotFoundException when using req.FormData["name"].
             // That was my mistake. Fixed it. Now adding in the correct FormData dictionary (HttpRequest/ParseFormData).
             appRouteConfig
-                .AddRoute("/add", new PostHandler(req => new CakesController().Add(req.FormData["name"], req.FormData["price"])));
+                .AddRoute("/add", new PostHandler(req => new ProductsController().Add(new AddProductViewModel
+                {
+                    Name = req.FormData["name"],
+                    Price = decimal.Parse(req.FormData["price"]),
+                    ImageUrl = req.FormData["imageUrl"]
+                })));
 
             appRouteConfig
-                .AddRoute("/add", new GetHandler(req => new CakesController().Add()));
+                .AddRoute("/add", new GetHandler(req => new ProductsController().Add()));
 
             appRouteConfig
-                .AddRoute("/search", new GetHandler(req => new CakesController().Search(req)));
+                .AddRoute("/search", new GetHandler(req => new ProductsController().Search(req)));
+
+            appRouteConfig
+                .AddRoute("/products/{(?<id>[0-9]+)}", new GetHandler(req => new ProductsController().Details(int.Parse(req.UrlParameters["id"]))));
 
             appRouteConfig
                 .AddRoute("/register", new GetHandler(req => new AccountController().Register()));
@@ -77,10 +86,10 @@
                 .AddRoute("/shopping/add/{(?<id>[0-9]+)}", new GetHandler(req => new ShoppingController().AddToCart(req)));
 
             appRouteConfig
-                .AddRoute("/myShoppingCart", new GetHandler(req => new ShoppingController().ShowOrders(req)));
+                .AddRoute("/myShoppingCart", new GetHandler(req => new ShoppingController().ShowCart(req)));
 
             appRouteConfig
-                .AddRoute("/success", new PostHandler(req => new ShoppingController().Success(req)));
+                .AddRoute("/success", new PostHandler(req => new ShoppingController().FinishOrder(req)));
         }
     }
 }

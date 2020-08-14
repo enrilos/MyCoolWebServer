@@ -9,54 +9,60 @@
 
     public class UserService : IUserService
     {
+        private ByTheCakeDbContext db;
+
+        public UserService()
+        {
+            this.db = new ByTheCakeDbContext();
+        }
+
         public bool Create(string username, string password)
         {
-            using (var db = new ByTheCakeDbContext())
+            if (this.db.Users.Any(u => u.Username == username))
             {
-                if (db.Users.Any(u => u.Username == username))
-                {
-                    return false;
-                }
-
-                var user = new User
-                {
-                    Username = username,
-                    Password = password,
-                    RegistrationDate = DateTime.UtcNow
-                };
-
-                db.Users.Add(user);
-                db.SaveChanges();
-
-                return true;
+                return false;
             }
+
+            var user = new User
+            {
+                Username = username,
+                Password = password,
+                RegistrationDate = DateTime.UtcNow
+            };
+
+            this.db.Users.Add(user);
+            this.db.SaveChanges();
+
+            return true;
+
         }
 
         public bool Exists(string username, string password)
         {
-            using (var db = new ByTheCakeDbContext())
-            {
-                return db.Users.Any(u => u.Username == username && u.Password == password);
-            }
+            return this.db.Users.Any(u => u.Username == username && u.Password == password);
         }
 
         public ProfileUserViewModel Get(string username)
         {
-            using (var db = new ByTheCakeDbContext())
-            {
-                var user = db
-                    .Users
-                    .Where(u => u.Username == username)
-                    .Select(u => new ProfileUserViewModel
-                    {
-                        Username = u.Username,
-                        RegistrationDate = u.RegistrationDate,
-                        TotalOrders = u.Orders.Count
-                    })
-                    .FirstOrDefault();
+            var users = this.db
+                .Users
+                .Where(u => u.Username == username)
+                .Select(u => new ProfileUserViewModel
+                {
+                    Username = u.Username,
+                    RegistrationDate = u.RegistrationDate,
+                    TotalOrders = u.Orders.Count
+                })
+                .FirstOrDefault();
 
-                return user;
-            }
+            return users;
+        }
+
+        public int? GetUserId(string username)
+        {
+            var id = this.db.Users.FirstOrDefault(x => x.Username == username).Id;
+
+            return id != 0 ? (int?)id : null;
         }
     }
 }
